@@ -124,7 +124,7 @@ var state = {
 };
 
 /* We'll use underscore's `once` function to make sure this only happens
- *  one time even if weupdate the position later
+ *  one time even if we update the position later
  */
 var goToOrigin = _.once(function(lat, lng) {
   map.flyTo([lat, lng], 14);
@@ -152,10 +152,17 @@ $(document).ready(function() {
     alert("Unable to access geolocation API!");
   }
 
+  var myAddress = '3600 chestnut st.';
+  //
+  $.ajax('https://search.mapzen.com/v1/search?api_key=mapzen-PDc1BgT&text=' + myAddress).done(function(data){
+    console.log(data);
+  });
+
 
   /* Every time a key is lifted while typing in the #dest input, disable
    * the #calculate button if no text is in the input
    */
+  // it's a default set up by instructors
   $('#dest').keyup(function(e) {
     if ($('#dest').val().length === 0) {
       $('#calculate').attr('disabled', true);
@@ -171,5 +178,3 @@ $(document).ready(function() {
   });
 
 });
-
-
