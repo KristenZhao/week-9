@@ -91,7 +91,7 @@ var drawControl = new L.Control.Draw({
 map.addControl(drawControl);
 
 // Run every time Leaflet draw creates a new layer
-
+$(".shape h1").hide();
 map.on('draw:created', function (e) {
     if (typeof myRectangle !== 'undefined'){
       map.removeLayer(myRectangle);
@@ -104,11 +104,18 @@ map.on('draw:created', function (e) {
 
     // add each polygon into map
     layer.addTo(map);
-    //console.log("type:",type,"\n","layer:",layer,"id:",id);
+    console.log("type:",type,"\n","layer:",layer,"id:",id);
     //console.log(typeof myRectangle);
 
 //     // to delete from the map
 //     _.each(demoShapes, function(shape){
 //       map.removeLayer(layer);
 //     });
+
+    /////////// TASK 4 /////////////////
+    console.log($("div.shape").data());
+    $(".shape h1").show().text('Current ID: ' + id);
+    ////////// stretch Task 1 ////////////
+
+
  });

@@ -115,7 +115,8 @@ Task 6: (stretch) See if you can refocus the map to roughly the bounding box of 
 
 
 ===================== */
-
+//// MapZen api_key
+var api_key = 'mapzen-PDc1BgT';
 var state = {
   position: {
     marker: null,
@@ -146,18 +147,14 @@ $(document).ready(function() {
   /* This 'if' check allows us to safely ask for the user's current position */
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(function(position) {
-      updatePosition(position.coords.latitude, position.coords.longitude, position.timestamp);
+      var currentLat = position.coords.latitude;
+      var currentLon = position.coords.longitude;
+      updatePosition(currentLat, currentLon, position.timestamp);
+      console.log('currentLat:',currentLat,'currentLon:',currentLon);
     });
   } else {
     alert("Unable to access geolocation API!");
   }
-
-  var myAddress = '3600 chestnut st.';
-  //
-  $.ajax('https://search.mapzen.com/v1/search?api_key=mapzen-PDc1BgT&text=' + myAddress).done(function(data){
-    console.log(data);
-  });
-
 
   /* Every time a key is lifted while typing in the #dest input, disable
    * the #calculate button if no text is in the input
@@ -175,6 +172,16 @@ $(document).ready(function() {
   $("#calculate").click(function(e) {
     var dest = $('#dest').val();
     console.log(dest);
-  });
-
+    $.ajax('https://search.mapzen.com/v1/search?api_key='+api_key+'&text=' + dest + '&boundary.country=USA')
+    .done(function(data){
+      console.log(data);
+    });
+///////// Get Routes ///////////////
+    $.ajax('https://matrix.mapzen.com/optimized_route?json={"locations":[{'+
+      '"lat":'+currentLat+',"lon":'+currentLon+'},{"lat":39.992115,"lon":-76.781559}],'+
+      '"costing":"auto","directions_options":{"units":"miles"}}&'+
+      'api_key='+api_key+'}').done(function(routeData){
+        console.log("routeData:",routeData);
+      });
+    });
 });
