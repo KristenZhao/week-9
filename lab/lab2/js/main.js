@@ -151,6 +151,56 @@ $(document).ready(function() {
       var currentLon = position.coords.longitude;
       updatePosition(currentLat, currentLon, position.timestamp);
       console.log('currentLat:',currentLat,'currentLon:',currentLon);
+/////////////////// CREATE CLICK EVENT /////////////////////////////////////
+      $("#calculate").click(function(e) {
+        var dest = $('#dest').val();
+        console.log('dest:',dest);
+/////////////////// GET USER INPUT COORDINATES /////////////////////////////
+        $.ajax('https://search.mapzen.com/v1/search?api_key='+api_key+'&text=' + dest + '&size=1&boundary.country=USA')
+        .done(function(data){
+          console.log('data:',data);
+          //console.log('data lat lon:',data.features[0].geometry.coordinates);
+          var inputLat = data.features[0].geometry.coordinates[1];
+          var inputLon = data.features[0].geometry.coordinates[0];
+          console.log('lat-lon',inputLat,inputLon);
+          var routeURL='https://matrix.mapzen.com/optimized_route?json={"locations":[{'+
+            '"lat":'+currentLat+',"lon":'+currentLon+'},{"lat":'+inputLat+',"lon":'+inputLon+'}],'+
+            '"costing":"bicycle","directions_options":{"units":"miles"}}&'+
+            'api_key='+api_key;
+          console.log(routeURL);
+/////////////////// GET ROUTE ////////////////////////////////////
+          $.ajax(routeURL).done(function(routeData){
+              console.log("routeData:",routeData);
+              var directionStr = routeData.trip.legs[0].shape;
+              console.log(directionStr);
+//////////////////// DECODING //////////////////////////////////
+              var decoded = decode(directionStr,6);
+              console.log('decoded:',decoded);
+//////////////////// CONVERT TO GEOJSON ////////////////////////
+              var routeCoords = _.map(decoded,function(coords){
+                var altCoords = [coords[1],coords[0]];
+                return altCoords;
+              });
+              console.log('routeRecords',routeCoords);
+              //_.each()
+              var routeJSON = {
+                "type": "FeatureCollection",
+                "features": [
+                  {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                      "type": "LineString",
+                      "coordinates": routeCoords,
+                    }
+                  }
+                ]};
+                console.log('routeJSON',routeJSON);
+//////////////////// DISPLAY ROUTE!! ///////////////////////
+                L.polyline(decoded,{color: 'blue'}).addTo(map);
+            });
+        });
+      });
     });
   } else {
     alert("Unable to access geolocation API!");
@@ -160,6 +210,7 @@ $(document).ready(function() {
    * the #calculate button if no text is in the input
    */
   // it's a default set up by instructors
+  //console.log('currentLat test:',currentLat);
   $('#dest').keyup(function(e) {
     if ($('#dest').val().length === 0) {
       $('#calculate').attr('disabled', true);
@@ -169,19 +220,5 @@ $(document).ready(function() {
   });
 
   // click handler for the "calculate" button (probably you want to do something with this)
-  $("#calculate").click(function(e) {
-    var dest = $('#dest').val();
-    console.log(dest);
-    $.ajax('https://search.mapzen.com/v1/search?api_key='+api_key+'&text=' + dest + '&boundary.country=USA')
-    .done(function(data){
-      console.log(data);
-    });
-///////// Get Routes ///////////////
-    $.ajax('https://matrix.mapzen.com/optimized_route?json={"locations":[{'+
-      '"lat":'+currentLat+',"lon":'+currentLon+'},{"lat":39.992115,"lon":-76.781559}],'+
-      '"costing":"auto","directions_options":{"units":"miles"}}&'+
-      'api_key='+api_key+'}').done(function(routeData){
-        console.log("routeData:",routeData);
-      });
-    });
+
 });

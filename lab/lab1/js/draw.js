@@ -113,7 +113,9 @@ map.on('draw:created', function (e) {
 //     });
 
     /////////// TASK 4 /////////////////
-    console.log($("div.shape").data());
+    //$("div.shape").data("leafletId",id);
+    $(".shape").data('leafletId', id);
+    console.log($(".shape").data('leafletId'));
     $(".shape h1").show().text('Current ID: ' + id);
     ////////// stretch Task 1 ////////////
 
